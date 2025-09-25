@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser LLM Chat Demo</title>
+    <style>
+      body {
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        background-color: #f9fafb;
+        color: #111827;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .app-container {
+        background-color: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        overflow: hidden;
+        margin-top: 5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 1.5rem;
+        color: #111827;
+      }
+
+      #output {
+        background: #f3f4f6;
+        padding: 1.25rem;
+        min-height: 220px;
+        border-radius: 12px;
+        overflow-y: auto;
+        max-height: 420px;
+        font-size: 0.95rem;
+      }
+
+      input,
+      button,
+      select {
+        font-family: inherit;
+        font-size: 0.95rem;
+        padding: 0.8rem 1rem;
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background-color: white;
+      }
+
+      button {
+        background-color: #fd366e;
+        color: white;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.15s;
+      }
+
+      button:hover:not(:disabled) {
+        background-color: #e62e60;
+      }
+
+      button:disabled {
+        background-color: #ffa5c0;
+        cursor: not-allowed;
+      }
+
+      .error {
+        color: #dc2626;
+        background-color: #fee2e2;
+        padding: 0.8rem;
+        border-radius: 10px;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .chat-container {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .progress-container {
+        margin-top: 1rem;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background-color: #fd366e;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .progress-text {
+        font-size: 0.8rem;
+        text-align: center;
+        margin-top: 0.5rem;
+        color: #6b7280;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      input {
+        box-sizing: border-box;
+        margin: 0rem;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: rgba(253, 54, 110, 0.5);
+        box-shadow: 0 0 0 1px rgba(253, 54, 110, 0.1);
+      }
+
+      /* hide any <think> elements so the internal thinking text is not visible */
+      think {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <h1>Chat with LLM (About Yutaro)</h1>
+      <p>Note: The outputs of the LLM can be false.</p>
+
+      <div class="controls">
+        <select id="model-select">
+           <option value="Qwen3-0.6B-q0f32-MLC">
+            Qwen3-0.6B (Small)
+          </option>
+        </select>
+        <button id="load-model">Load Model</button>
+      </div>
+
+      <div class="chat-container">
+        <div id="output">Select a model and click "Load Model" to begin</div>
+
+        <div
+          id="progress-container"
+          class="progress-container"
+          style="display: none"
+        >
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <div id="progress-text" class="progress-text">0%</div>
+        </div>
+
+        <form id="chat-form" class="form-group">
+          <input id="prompt" placeholder="Type your question..." disabled />
+          <button type="submit" disabled>Send</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- load markdown renderer + sanitizer before the module script -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
+    <script type="module">
+      import { CreateMLCEngine } from 'https://esm.run/@mlc-ai/web-llm@0.2.79'
+
+      const output = document.getElementById('output')
+      const form = document.getElementById('chat-form')
+      const promptInput = document.getElementById('prompt')
+      const submitButton = document.querySelector('button[type="submit"]')
+      const modelSelect = document.getElementById('model-select')
+      const loadModelButton = document.getElementById('load-model')
+      const progressContainer = document.getElementById('progress-container')
+      const progressFill = document.getElementById('progress-fill')
+      const progressText = document.getElementById('progress-text')
+
+      // Hardcoded (non-editable) system instructions and context visible only in the HTML source
+      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrst. Answer only about Yutaro Sigrst. If you don't know the answer, say "I don't know". Use the context to answer the question.`
+      const HARD_CODED_CONTEXT = `
+      Yutaro is a software engineer and AI enthusiast based in Switzerland. 
+      He finished his Bachelor's degree 2025 Summer in Artificial Intelligence and Machine Learning at HSLU (Hochschule Luzern).
+      He is passionate about developing innovative AI solutions and exploring the latest advancements in machine learning and deep learning.
+      `
+
+      let engine = null
+      let hiddenThinkEl = null
+
+      // render markdown to sanitized HTML
+      const renderMarkdown = (md) => {
+        const html = window.marked ? window.marked.parse(md) : md
+        return window.DOMPurify ? DOMPurify.sanitize(html) : html
+      }
+
+      // simple escape for inline backticks in prompts
+      const escapeMarkdown = (s = '') => s.replace(/`/g, '\\`')
+
+      // NEW: remove any <think>...</think> blocks from a string
+      const removeThinkTags = (s = '') => {
+        return s.replace(/<think[\s\S]*?<\/think>/gi, '')
+      }
+
+      const updateProgress = (percent) => {
+        progressContainer.style.display = 'block'
+        progressFill.style.width = `${percent}%`
+        progressText.textContent = `${percent}%`
+      }
+
+      const loadModel = async (modelId) => {
+        try {
+          output.innerHTML = renderMarkdown('Initializing...')
+          promptInput.disabled = true
+          submitButton.disabled = true
+          loadModelButton.disabled = true
+          progressContainer.style.display = 'none'
+
+          if (!navigator.gpu) {
+            throw new Error(
+              'WebGPU not supported in this browser. Please use Chrome 113+, Edge 113+, or Firefox 118+.',
+            )
+          }
+
+          output.innerHTML = renderMarkdown(
+            'Starting model download. This may take a while...'
+          )
+
+          engine = await CreateMLCEngine(modelId, {
+            initProgressCallback: (progress) => {
+              let percent = 0
+
+              if (
+                progress &&
+                typeof progress === 'object' &&
+                'progress' in progress
+              ) {
+                percent = Math.floor(progress.progress * 100)
+              } else if (typeof progress === 'number') {
+                percent = Math.floor(progress * 100)
+              }
+
+              updateProgress(percent)
+              output.innerHTML = renderMarkdown(`Loading model... ${percent}%`)
+            },
+            useIndexedDBCache: true,
+          })
+
+          output.innerHTML = renderMarkdown('Model ready! Ask me something!')
+          promptInput.disabled = false
+          submitButton.disabled = false
+          loadModelButton.disabled = false
+
+          return engine
+        } catch (error) {
+          loadModelButton.disabled = false
+          output.innerHTML += `<div class="error">Failed to load model: ${error.message}</div>`
+          throw error
+        }
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+
+        if (!engine) {
+          output.innerHTML += `<div class="error">No model loaded. Please load a model first.</div>`
+          return
+        }
+
+        const prompt = promptInput.value.trim()
+        if (!prompt) return
+
+        // show only a visible "Thinking..." placeholder while the model streams
+        output.innerHTML = renderMarkdown('Thinking...')
+
+        // ensure any previous hidden think element is removed
+        if (hiddenThinkEl) hiddenThinkEl.remove()
+        hiddenThinkEl = document.createElement('think')
+        hiddenThinkEl.style.display = 'none'
+        hiddenThinkEl.textContent = ''
+        output.appendChild(hiddenThinkEl)
+
+        promptInput.value = ''
+        promptInput.disabled = true
+        submitButton.disabled = true
+
+        try {
+          // build messages using the hardcoded system + context
+          const messages = []
+          if (HARD_CODED_SYSTEM_INSTRUCTIONS && HARD_CODED_SYSTEM_INSTRUCTIONS.trim()) {
+            messages.push({ role: 'system', content: HARD_CODED_SYSTEM_INSTRUCTIONS.trim() })
+          }
+          if (HARD_CODED_CONTEXT && HARD_CODED_CONTEXT.trim()) {
+            messages.push({ role: 'user', content: HARD_CODED_CONTEXT.trim() })
+          }
+          messages.push({ role: 'user', content: prompt })
+
+          const stream = await engine.chat.completions.create({
+            messages,
+            stream: true,
+          })
+
+          // collect tokens into the hidden <think> element only (not shown to the user)
+          for await (const chunk of stream) {
+            const token = chunk.choices[0].delta.content || ''
+            hiddenThinkEl.textContent += token
+          }
+
+          // on completion, remove any <think>...</think> regions from the assistant text
+          const finalAssistantRaw = hiddenThinkEl.textContent || ''
+          const finalAssistant = removeThinkTags(finalAssistantRaw)
+
+          // render only the cleaned assistant output as Markdown
+          output.innerHTML = renderMarkdown(finalAssistant)
+
+          // keep hidden think element in DOM (still hidden)
+          output.appendChild(hiddenThinkEl)
+
+          promptInput.disabled = false
+          submitButton.disabled = false
+          promptInput.focus()
+        } catch (error) {
+          output.innerHTML += `<div class="error">Error during chat: ${error.message}</div>`
+          promptInput.disabled = false
+          submitButton.disabled = false
+        }
+      })
+
+      loadModelButton.addEventListener('click', async () => {
+        try {
+          await loadModel(modelSelect.value)
+        } catch (error) {}
+      })
+    </script>
+  </body>
+</html>
