@@ -149,6 +149,7 @@
     <div class="app-container">
       <h1>Chat with LLM (About Yutaro Sigrist)</h1>
       <p>Note: The outputs of the LLM can be false.</p>
+      <p>Since it uses your local GPU to run. It may not running on your environment.</p>
 
       <div class="controls">
         <select id="model-select">
@@ -203,6 +204,9 @@
       Yutaro is a software engineer and AI enthusiast based in Switzerland. 
       He finished his Bachelor's degree 2025 Summer in Artificial Intelligence and Machine Learning at HSLU (Hochschule Luzern).
       He is passionate about developing innovative AI solutions and exploring the latest advancements in machine learning and deep learning.
+      In his studies, he has worked on various projects involving natural language processing, computer vision, and reinforcement learning and his thesis was about "Merging of Large Language Models".
+      He is proficient in programming languages such as Python, JavaScript(Including Vue.JS, ReactJS etc..), Java and .Net, and has experience with popular AI frameworks like PyTorch.
+      
       `
 
       let engine = null
@@ -290,8 +294,11 @@
         const prompt = promptInput.value.trim()
         if (!prompt) return
 
-        // show only a visible "Thinking..." placeholder while the model streams
-        output.innerHTML = renderMarkdown('Thinking...')
+        // Prepare a sanitized/escaped question header to show on top of outputs
+        const questionMarkdown = `**Question:** ${escapeMarkdown(prompt)}`
+
+        // show the question and a visible "Thinking..." placeholder while the model streams
+        output.innerHTML = renderMarkdown(`${questionMarkdown}\n\nThinking...`)
 
         // ensure any previous hidden think element is removed
         if (hiddenThinkEl) hiddenThinkEl.remove()
@@ -330,8 +337,8 @@
           const finalAssistantRaw = hiddenThinkEl.textContent || ''
           const finalAssistant = removeThinkTags(finalAssistantRaw)
 
-          // render only the cleaned assistant output as Markdown
-          output.innerHTML = renderMarkdown(finalAssistant)
+          // render the question header plus the cleaned assistant output as Markdown
+          output.innerHTML = renderMarkdown(`${questionMarkdown}\n\n${finalAssistant}`)
 
           // keep hidden think element in DOM (still hidden)
           output.appendChild(hiddenThinkEl)
