@@ -147,6 +147,10 @@
   </head>
   <body>
     <div class="app-container">
+      <div id="banner" style="display:none;margin-bottom:1rem;padding:0.75rem;border-radius:8px;background:#fff7ed;color:#92400e;border:1px solid #fcd34d">
+        <strong id="banner-title"></strong>
+        <div id="banner-message" style="margin-top:0.25rem;font-size:0.95rem"></div>
+      </div>
       <h1>Chat with LLM (About Yutaro Sigrist)</h1>
       <p>Note: The outputs of the LLM can be false.</p>
       <p>Since it uses your local GPU to run. It may not running on your environment.</p>
@@ -198,27 +202,68 @@
       const progressFill = document.getElementById('progress-fill')
       const progressText = document.getElementById('progress-text')
 
-      // Hardcoded (non-editable) system instructions and context visible only in the HTML source
+      // System instructions are still embedded; the long user-visible context is loaded from an external file
       const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrst. Answer only about Yutaro Sigrst. If you don't know the answer, say "I don't know". Use the context to answer the question. Use the language the user uses.`
-      const HARD_CODED_CONTEXT = ` Yutaro Sigrist is a software engineer and AI enthusiast based in Zürich, Switzerland. He borned in Kyoto Japan on August 20 2000. His father comes from Switzerland and his mother is Japanese. He is completing his Bachelor's degree in Artificial Intelligence and Machine Learning, with a minor in Information & Cyber-Security, at HSLU (Hochschule Luzern) from 2021-2025. He is passionate about developing innovative AI solutions and exploring the latest advancements in machine learning and deep learning. In his studies, he has worked on various projects involving natural language processing, computer vision, and reinforcement learning, and his thesis was about "Merging of Large Language Models".
-Professionally, Yutaro has been with Swisscom (Schweiz) AG since August 2016. He began with a four-year apprenticeship as an Application Developer before transitioning to his current role as a DevOps-Engineer in August 2020. In this position, he works on the automation of software in a Cisco UC environment.
-He is proficient in programming languages such as Python, JavaScript (including Nuxt.js, Vue.js and React), Java, and .Net, and has experience with popular AI frameworks like PyTorch. Additionally, Yutaro is multilingual; he speaks German and Japanese as his native languages and is fluent in English.
-He is very interested in the field of Artificial Intelligence and new technologies, and likes trying out new tools, frameworks and technologies. In his free time, he enjoys watching anime, playing video games, photography, and traveling to explore new cultures and cuisines.
-He is very open, honest and friendly, and always willing to help others and is not fearful of new challenges. 
-Yutaro is a quick learner and adapts easily to new environments and technologies. He wants to learn newer technologies and improve his skills.
-He is a cat person and wants to have two cats in the future. 
-For all this reasons above he should be hired.
-His weaknesses include a tendency to sometimes overthink things and being a perfectionist, which leads to spending extra time on tasks to ensure they are done correctly, but this also means he produces high-quality work. He is also nervous when speaking in front of many people, despite knowing what he is talking about, he wants to improve this skill by practicing more public speaking and presentations and also may participate in workshops or courses to build confidence.
-His goal (how he sees himself in about 10 years) is to become a senior machine learning engineer or data scientist and have developed and contribute to many projects in this field.
-      `
+      // The detailed context is stored in `/context.txt` next to this HTML file. We fetch it at runtime so it can be edited independently.
+      let HARD_CODED_CONTEXT = ''
+
+      // Banner helpers
+      const bannerEl = document.getElementById('banner')
+      const bannerTitle = document.getElementById('banner-title')
+      const bannerMessage = document.getElementById('banner-message')
+      const showBanner = (title, message) => {
+        if (!bannerEl) return
+        bannerTitle.textContent = title
+        bannerMessage.textContent = message
+        bannerEl.style.display = 'block'
+      }
+
+      // Try to fetch context.txt early so it's available when the user chats. If fetching fails, show a visible banner and fall back to an empty context.
+      (async () => {
+        // warn user if running from the file:// protocol (static files should be served)
+        if (location.protocol === 'file:') {
+          showBanner('Static mode detected', 'You opened the file locally via file://. Some browsers block fetch requests for local files. Serve the folder with a static server (e.g. `python3 -m http.server`) or deploy to GitHub Pages.')
+        }
+
+        try {
+          const res = await fetch(new URL('./context.txt', location.href).href)
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          HARD_CODED_CONTEXT = await res.text()
+        } catch (err) {
+          console.error('Failed to load context.txt:', err)
+          HARD_CODED_CONTEXT = ''
+          // show a visible banner to help users debug static-serving issues
+          showBanner('context.txt not loaded', 'The file `context.txt` could not be fetched. Ensure you are serving the site via HTTP and `context.txt` exists next to `index.html`.')
+        }
+      })()
 
       let engine = null
       let hiddenThinkEl = null
 
-      // render markdown to sanitized HTML
+      // render markdown to sanitized HTML (defensive: ensure functions exist before calling)
       const renderMarkdown = (md) => {
-        const html = window.marked ? window.marked.parse(md) : md
-        return window.DOMPurify ? DOMPurify.sanitize(html) : html
+        let html = md
+        try {
+          if (window.marked && typeof window.marked.parse === 'function') {
+            html = window.marked.parse(md)
+          } else if (window.marked && typeof window.marked === 'function') {
+            // some builds expose marked as a function directly
+            html = window.marked(md)
+          }
+        } catch (err) {
+          console.error('marked parse failed, falling back to raw markdown:', err)
+          html = md
+        }
+
+        try {
+          if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+            return DOMPurify.sanitize(html)
+          }
+        } catch (err) {
+          console.error('DOMPurify sanitize failed, returning unsanitized HTML:', err)
+        }
+
+        return html
       }
 
       // simple escape for inline backticks in prompts
