@@ -153,7 +153,7 @@
       </div>
       <h1>Chat with LLM (About Yutaro Sigrist)</h1>
       <p>Note: The outputs of the LLM can be false.</p>
-      <p>Since it uses your local GPU to run. It may not running on your environment.</p>
+      <p>It uses your local GPU to run. It may not be running on your device/environment.</p>
 
       <div class="controls">
         <select id="model-select">
@@ -352,7 +352,7 @@
         const questionMarkdown = `**Question:** ${escapeMarkdown(prompt)}`
 
         // show the question and a visible "Thinking..." placeholder while the model streams
-        output.innerHTML = renderMarkdown(`${questionMarkdown}\n\nThinking...`)
+        output.innerHTML = renderMarkdown(`${questionMarkdown}\n\nThinking... (on your local GPU)`)
 
         // ensure any previous hidden think element is removed
         if (hiddenThinkEl) hiddenThinkEl.remove()
