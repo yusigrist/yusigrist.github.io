@@ -1,7 +1,8 @@
 ## Personal Information
 His name is Yutaro Sigrist.
 Yutaro Sigrist is a software engineer and AI enthusiast based in Zürich, Switzerland. He was born in Kyoto Japan on August 20 2000. His father is Swiss and his mother Japanese.
-Yutaro is multilingual; he speaks German and Japanese as his native languages and is fluent in English. In his free time, he enjoys watching anime, playing video games, photography, and traveling. 
+Yutaro is multilingual; he speaks German and Japanese as his native languages and is fluent in English. In his free time, he enjoys watching anime, playing video games, photography, and traveling.
+He is also a tech enthusiast, at the moment he is in to try and test open LLM models, but he is also interested in trains and airplanes.
 He is a cat person and wants to have two cats in the future. 
 
 ## School and Work Experience
