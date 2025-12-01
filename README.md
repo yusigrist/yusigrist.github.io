@@ -5,7 +5,7 @@ This repository is a static website. To run it locally and test the `context.txt
 Quick local test (Python 3):
 
 ```bash
-cd /Users/yuuta/Documents/ai/webgpu_llm/yusigrist.github.io
+cd /path/to/repo
 python3 -m http.server 8000
 # open http://localhost:8000 in your browser
 ```
