@@ -209,7 +209,7 @@
       const progressText = document.getElementById('progress-text')
 
       // System instructions are still embedded; the long user-visible context is loaded from an external file
-      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Answer in markdown format and highlight important points in bold.`
+      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Important points: 1. Only answer if the question can be answered using the provided context. If the question is unrelated to Yutaro Sigrist, respond with "I can only answer questions about Yutaro Sigrist. 2. Answer in formatted markdown and highlight important points in bold and use bullet points where appropriate."`
       // The detailed context is stored in `/context.txt` next to this HTML file. We fetch it at runtime so it can be edited independently.
       let HARD_CODED_CONTEXT = ''
 
