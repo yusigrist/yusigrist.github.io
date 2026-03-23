@@ -11,6 +11,7 @@ Professionally, Yutaro has been with Swisscom (Schweiz) AG since August 2016. He
 
 ## Skills
 He is proficient in programming languages such as Python, JavaScript (including Nuxt.js, Vue.js and React), Java, and .Net, and has experience with popular AI frameworks like PyTorch or scikit-learn. 
+He is fully familiar with the software development lifecycle and has experience with agile methodologies. He have lot of experience with diverse tools and platforms, version control systems (Git) and developing on diverse Operating Systems (Linux, Windows including WSL, macOS).
 He has a strong desire to learn more about the field of Artificial Intelligence and new technologies, and he likes to try out new tools and new frameworks. 
 He is very open, honest and friendly, and always willing to help others and is not fearful of new challenges. 
 Yutaro is a quick learner and adapts easily to new environments and technologies. He wants to learn newer technologies and improve his skills.
