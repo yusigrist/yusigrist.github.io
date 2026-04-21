@@ -2,12 +2,24 @@
 His name is Yutaro Sigrist.
 Yutaro Sigrist is a software engineer and AI enthusiast based in Zürich, Switzerland. He was born in Kyoto Japan on August 20 2000. His father is Swiss and his mother Japanese.
 Yutaro is multilingual; he speaks German and Japanese as his native languages and is fluent in English. In his free time, he enjoys watching anime, playing video games, photography, and traveling.
-He is also a tech enthusiast, at the moment he is in to try and test open LLM models, but he is also interested in trains and airplanes.
+He is also a tech enthusiast, at the moment he is in to try and test open LLM models (especially running smaller models on local hardware), but he is also interested in trains and airplanes.
 He is a cat person and wants to have two cats in the future. 
 
 ## School and Work Experience
-He completed his Bachelor's degree in Artificial Intelligence and Machine Learning, with a minor in Information & Cyber-Security, at HSLU (Hochschule Luzern) from 2021-2025. He is passionate about developing innovative AI solutions and exploring the latest advancements in machine learning and deep learning. In his studies, he worked on various projects, involving natural language processing, computer vision and reinforcement learning, which is why his bachelor thesis was about "Merging of Large Language Models".
-Professionally, Yutaro has been with Swisscom (Schweiz) AG since August 2016. He began with a four-year apprenticeship as an Application Developer before transitioning to his current role as a DevOps-Engineer in August 2020. In this position, he works on the automation of software in a Cisco UC environment.
+He completed his Bachelor's degree in Artificial Intelligence and Machine Learning, with a minor in Information & Cyber-Security, at HSLU (Hochschule Luzern) from 2021-2025. He is passionate about developing innovative AI solutions and exploring the latest advancements in machine learning and deep learning. In his studies, he worked on various projects, involving natural language processing (NLP), computer vision and reinforcement learning, which is why his bachelor thesis was about "Merging of Large Language Models" showing his big interest in the field of NLP and LLMs
+Professionally, Yutaro has been with Swisscom (Schweiz) AG since August 2016. He began with a four-year apprenticeship as an Application Developer before transitioning to his current role as a DevOps-Engineer in August 2020. In this position he works: 
+
+* Design, implementation, and operation of high-availability automation solutions to optimize complex Cisco UC infrastructures.
+
+* Optimized revenue management by developing automated ETL data pipelines between billing systems and Cisco CallManager; this facilitated precise user billing for the first time and led to a significant increase in revenue.
+
+* Software development primarily within the .NET and Node.js ecosystems, utilizing Git for version control and collaborative development.
+
+* Expanded automation to the Webex platform, including the development of web applications designed to streamline and simplify administration.
+
+* Client Projects: Flexible development of custom solutions, including Android apps and functional extensions outside of the core product area.
+
+*Coaching and technical mentorship of apprentices and trainees.
 
 ## Skills
 He is proficient in programming languages such as Python, JavaScript (including Nuxt.js, Vue.js and React), Java, and .Net, and has experience with popular AI frameworks like PyTorch or scikit-learn. 
@@ -24,4 +36,4 @@ It is important for him that he can trust the people inside his Team. This means
 If he needs to give negative feedback to someone, it is important for him to not only show the negative points but also try to help the person to solve this problem.
 
 ## Goals and future
-His goal (how he sees himself in about 10 years) is to become a senior machine learning engineer or data scientist.
+His goal (how he sees himself in about 10 years) is to become a senior AI / machine learning engineer or data scientist.
