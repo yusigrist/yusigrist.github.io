@@ -162,7 +162,7 @@
             Qwen3.5-2B (Medium - Recommended)
           </option>
           <option value="Qwen3.5-0.8B-q4f16_1-MLC">
-            Qwen3.5-0.8B (Small - less accurate - use only on low-end devices)
+            Qwen3.5-0.8B (Small - less accurate - Recommended on low-end devices)
           </option>
           <option value="Qwen3.5-4B-q4f16_1-MLC">
             Qwen3.5-4B (Large - may not run on all devices - slower)
@@ -213,7 +213,7 @@
       const progressText = document.getElementById('progress-text')
 
       // System instructions are still embedded; the long user-visible context is loaded from an external file
-      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. Whenever the user refers to 'he, him, his', they mean Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Important points: 1. Only answer if the question can be answered using the provided context. If the question is unrelated to Yutaro Sigrist, respond with "I can only answer questions about Yutaro Sigrist. 2. Answer in formatted markdown and highlight important points in bold and use bullet points where appropriate."`
+      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. Whenever the user refers to 'he, him, his', they mean Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Important points: 1. Only answer if the question can be answered using the provided context. If the question is unrelated to Yutaro Sigrist, respond with "I can only answer questions about Yutaro Sigrist. 2. Answer in formatted markdown and highlight important points in bold and use bullet points where appropriate. Do not reply using the exact phrasing from the context. Limit Thinking and Reasoning time. Don't answer to questions that are not related to Yutaro Sigrist."`
       // The detailed context is stored in `/context.txt` next to this HTML file. We fetch it at runtime so it can be edited independently.
       let HARD_CODED_CONTEXT = ''
 
@@ -279,9 +279,9 @@
       // simple escape for inline backticks in prompts
       const escapeMarkdown = (s = '') => s.replace(/`/g, '\\`')
 
-      // NEW: remove any <think>...</think> blocks from a string
+      // NEW: remove any <think>...</think> blocks and <<<reasoning_start>>> <<<reasoning_end>>> from a string
       const removeThinkTags = (s = '') => {
-        return s.replace(/<think[\s\S]*?<\/think>/gi, '')
+        return s.replace(/<think[\s\S]*?<\/think>/gi, '').replace(/<<<reasoning_start>>>[\s\S]*?<<<reasoning_end>>>/gi, '')
       }
 
       const updateProgress = (percent) => {
