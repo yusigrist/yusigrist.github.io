@@ -158,14 +158,17 @@
 
       <div class="controls">
         <select id="model-select">
-          <option value="Qwen3-1.7B-q4f16_1-MLC">
-            Qwen3-1.7B (Medium) Recommended
+          <option value="Qwen3.5-2B-q4f16_1-MLC">
+            Qwen3.5-2B (Medium) Recommended
           </option>
-          <option value="Qwen3-0.6B-q4f16_1-MLC">
-            Qwen3-0.6B (Small)
+          <option value="Qwen3.5-0.8B-q4f16_1-MLC">
+            Qwen3.5-0.8B (Small - less accurate use only on low-end devices)
           </option>
-          <option value="Qwen3-4B-q4f16_1-MLC">
-            Qwen3-4B (Large)
+          <option value="Qwen3.5-4B-q4f16_1-MLC">
+            Qwen3.5-4B (Large)
+          </option>
+          <option value="Qwen3.5-9B-q4f16_1-MLC">
+            Qwen3.5-9B (Extra Large - may not run on all devices - very slow)
           </option>
         </select>
         <button id="load-model">Load Model</button>
@@ -197,7 +200,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 
     <script type="module">
-      import { CreateMLCEngine } from 'https://esm.run/@mlc-ai/web-llm@0.2.79'
+      import { CreateMLCEngine } from 'https://esm.run/@mlc-ai/web-llm@0.2.84'
 
       const output = document.getElementById('output')
       const form = document.getElementById('chat-form')
@@ -210,7 +213,7 @@
       const progressText = document.getElementById('progress-text')
 
       // System instructions are still embedded; the long user-visible context is loaded from an external file
-      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Important points: 1. Only answer if the question can be answered using the provided context. If the question is unrelated to Yutaro Sigrist, respond with "I can only answer questions about Yutaro Sigrist. 2. Answer in formatted markdown and highlight important points in bold and use bullet points where appropriate."`
+      const HARD_CODED_SYSTEM_INSTRUCTIONS = `You are a concise assistant. Follow instructions and be brief. You are an expert on the Person Yutaro Sigrist. Answer only about Yutaro Sigrist. Whenever the user refers to 'he, him, his', they mean Yutaro Sigrist. If you don't know the answer, say "I don't know". Use the context to answer the question. It is important to be precise and not make up answers. This chatbot is used for job interviews about Yutaro Sigrist. Important points: 1. Only answer if the question can be answered using the provided context. If the question is unrelated to Yutaro Sigrist, respond with "I can only answer questions about Yutaro Sigrist. 2. Answer in formatted markdown and highlight important points in bold and use bullet points where appropriate."`
       // The detailed context is stored in `/context.txt` next to this HTML file. We fetch it at runtime so it can be edited independently.
       let HARD_CODED_CONTEXT = ''
 
